@@ -53,14 +53,16 @@ def main():
     rightMotor.set_stopping(BRAKE)
     leftMotor.set_stopping(BRAKE)
 
-    motorVelocity = 50  # Velocity in # (vmax = 200 rpm)
-    brain.screen.set_cursor(1, 1)
+    motorVelocity = 50              # Velocity in # (vmax = 200 rpm)
+    brain.screen.set_cursor(1, 1)   # Move cursor to row 1, column 1
 
-    bump()  # Wait for bump switch to be pressed
+    bump()                          # Wait for bump switch to be pressed
 
-    spinMotors(motorVelocity)   # Spin motors forward
-    wait(1000, MSEC)  # Wait time (timer) value in milliseconds
-    stopMotors()  # Stop motors
+    spinMotors(motorVelocity)       # Spin motors forward
+    wait(1000, MSEC)                # Wait time (timer) value in milliseconds
+    stopMotors()                    # Stop motors
 
     brain.screen.set_cursor(2, 1)   # Move cursor down one row
-    brain.screen.print(f"Time: {brain.timer.time(SECONDS)}")  # Print timer value in seconds
+    brain.screen.print(f"Time: {brain.timer.time(SECONDS)}")    # Print timer value in seconds
+
+main()  # Run main function
