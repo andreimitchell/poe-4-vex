@@ -1,9 +1,9 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       Alex Oh, Alp Tanyel                                          #
-# 	Created:      5/12/2025                                                    #
-# 	Description:  A1 Driving Straight                                          #
+# 	Author:       Alex Oh, Alp Tanyel, Andrei Mitchell                         #
+# 	Created:      5/21/2025                                                    #
+# 	Description:  A6 Sentry Simulation                                         #
 #                                                                              #
 # ---------------------------------------------------------------------------- #
 
@@ -67,18 +67,40 @@ def driveStraight(distance, normalVelocity, slowVelocity, reverse=False):
     leftMotor.set_position(0, DEGREES)
     rightMotor.set_position(0, DEGREES)
 
+    normalVel = 5
+    slowVel = 0
+
     # while loop will run until right encoder value = total count value
     while ((rightMotor.position(DEGREES) < count) ^ reverse):
         encoderValues()  # Print encoder values
 
         # Compute motor speeds and correct as necessary
         if (rightMotor.position(DEGREES) == leftMotor.position(DEGREES)): # both equal
-            spinMotors(direction * normalVelocity, direction * normalVelocity)
+            spinMotors(direction * normalVel, direction * normalVel)
         elif ((rightMotor.position(DEGREES) < leftMotor.position(DEGREES)) ^ reverse): # left faster
             # spinMotors(rightMotorVelocity, leftMotorVelocity)
-            spinMotors(direction * normalVelocity, direction * slowVelocity)
+            spinMotors(direction * normalVel, direction * slowVel)
         else: # right faster
-            spinMotors(direction * slowVelocity, direction * normalVelocity)
+            spinMotors(direction * slowVel, direction * normalVel)
+        
+        normalVel += 0.1
+        slowVel += 0.1
+        if normalVel > normalVelocity:
+            normalVel = normalVelocity
+        if slowVel > slowVelocity:
+            slowVel = slowVelocity
+    
+    stopMotors()
+
+# Define left point turn (direction = 1) and right point turn (direction = -1)
+def pointTurn(turnCount, motorVelocity, direction):
+    # Reset the encoders
+    leftMotor.set_position(0, DEGREES)
+    rightMotor.set_position(0, DEGREES)
+
+    # while loop will run until right encoder value = total count value
+    while (abs(rightMotor.position(DEGREES)) < turnCount):
+        spinMotors(direction * motorVelocity, -direction * motorVelocity)
     
     stopMotors()
 
@@ -88,27 +110,67 @@ def main():
     leftMotor.set_stopping(BRAKE)
 
     # Define normal and slow velocities
-    normalVelocity = 60            # Desired velocity
-    slowVelocity = 54              # Velocity to slow down to
+    normalVelocity = 45            # Desired velocity
+    slowVelocity = 40              # Velocity to slow down to
+
+    # Define turn velocity
+    turnVelocity = 40
+
+    # Constants
+    halfWidth = 5.5
+    wheelDiameter = 4
+    angle = 90
+    multiplier = 1.097
+    encoderAngle = multiplier * halfWidth * angle * 2 / wheelDiameter
 
     while True:
         brain.screen.set_cursor(1, 1)   # Move cursor to row 1, column 1
 
         bump()                          # Wait for bump switch to be pressed
 
-        # Time the running motors
+        wait(0.3, SECONDS)            # Wait so robot is not affected by hand
+
+        # Clear brain
         brain.timer.clear()
-        brain.screen.print("Timer Started")
 
         # Drive forward (distance in inches)
-        driveStraight(120, normalVelocity, slowVelocity)
+        driveStraight(45, normalVelocity, slowVelocity)
 
-        brain.screen.set_cursor(2, 1)   # Move cursor down one row
-        brain.screen.print("Time: " + str(brain.timer.time(SECONDS)))    # Print timer value in seconds
+        wait(0.5, SECONDS)
 
-        # wait(1, SECONDS)
+        # Point turn left
+        pointTurn(encoderAngle - 2, normalVelocity, 1)
 
-        # Drive reverse
-        # driveStraight(120, normalVelocity, slowVelocity, True)
+        wait(0.5, SECONDS)
 
-main()  # Run main function
+        # Drive forward (distance in inches)
+        driveStraight(45, normalVelocity, slowVelocity)
+
+        wait(0.5, SECONDS)
+
+        # Point turn left
+        pointTurn(encoderAngle, normalVelocity, 1)
+
+        wait(0.5, SECONDS)
+
+        # Drive forward (distance in inches)
+        driveStraight(45, normalVelocity, slowVelocity)
+
+        wait(0.5, SECONDS)
+
+        # Point turn left
+        pointTurn(encoderAngle, normalVelocity, 1)
+
+        wait(0.5, SECONDS)
+
+        # Drive forward (distance in inches)
+        driveStraight(45, normalVelocity, slowVelocity)
+
+        wait(0.5, SECONDS)
+
+        # Point turn left
+        pointTurn(encoderAngle, normalVelocity, 1)
+
+        wait(0.5, SECONDS)
+
+main()  # Run main function 
