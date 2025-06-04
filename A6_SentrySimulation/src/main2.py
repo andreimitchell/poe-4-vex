@@ -110,7 +110,7 @@ def driveStraight(distance, normalVelocity, reverse=False):
             spinMotors(direction * (normalVelocity + deltaVelocityRight), direction * normalVelocity)
         else: # both equal
             spinMotors(direction * normalVelocity, direction * normalVelocity)
-        time.sleep(0.01)
+        wait(10, MSEC)
     
     stopMotors()
 

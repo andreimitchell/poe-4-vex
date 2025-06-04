@@ -1,9 +1,9 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       Alex Oh, Alp Tanyel                                          #
-# 	Created:      5/28/2025                                                    #
-# 	Description:  A7 Rotation Sensor                                           #
+# 	Author:       Alex Oh, Alp Tanyel, Andrei Mitchell                         #
+# 	Created:      5/29/2025                                                    #
+# 	Description:  A8 Transport Challenge                                       #
 #                                                                              #
 # ---------------------------------------------------------------------------- #
 
@@ -12,7 +12,7 @@ from vex import *
 
 # Brain should be defined by default
 brain=Brain()
-        
+
 # Robot configuration code
 rightMotor = Motor(Ports.PORT1, GearSetting.RATIO_18_1, False)
 leftMotor = Motor(Ports.PORT2, GearSetting.RATIO_18_1, True)
@@ -67,8 +67,9 @@ def driveStraight(distance, normalVelocity, slowVelocity, reverse=False):
     leftMotor.set_position(0, DEGREES)
     rightMotor.set_position(0, DEGREES)
 
-    normalVel = 6
+    normalVel = 8
     slowVel = 0
+    increment = 1
 
     # while loop will run until right encoder value = total count value
     while abs(rightMotor.position(DEGREES)) < count:
@@ -80,8 +81,8 @@ def driveStraight(distance, normalVelocity, slowVelocity, reverse=False):
         else: # both equal
             spinMotors(direction * normalVel, direction * normalVel)
         
-        normalVel += 0.8
-        slowVel += 0.8
+        normalVel += increment
+        slowVel += increment
         if normalVel > normalVelocity:
             normalVel = normalVelocity
         if slowVel > slowVelocity:
@@ -127,6 +128,16 @@ def liftArm(motorVelocity, angle):
     brain.screen.set_cursor(2, 1)  # Move cursor to row 2, column 1
     brain.screen.print("Final Rotation: " + str(liftArmRotation.position(DEGREES)))
 
+def calculateEncoderAngle(angle, multiplier):
+    """
+    Calculate the encoder angle for a point turn based on the angle,
+    half width of the robot, and wheel diameter.
+    """
+    halfWidth = 5.5  # Half width of the robot in inches
+    wheelDiameter = 4  # Diameter of the wheels in inches
+
+    return multiplier * halfWidth * angle * 2 / wheelDiameter
+
 def main():
     # Set stopping mode for motors
     rightMotor.set_stopping(BRAKE)
@@ -135,20 +146,9 @@ def main():
 
     # Define motor velocities
     normalVelocity = 50 # Desired drivetrain velocity
-    slowVelocity = 44   # Velocity to slow down to
+    slowVelocity = 42   # Velocity to slow down to
     turnVelocity = 40   # Velocity for point turns
-    liftVelocity = 50   # Velocity for lift arm
-
-    # Turn angle for point turn
-    angle = 90
-
-    # Constants
-    halfWidth = 5.5
-    wheelDiameter = 4
-
-    # Calculate encoder angle for point turn
-    multiplier = 1.097
-    encoderAngle = multiplier * halfWidth * angle * 2 / wheelDiameter
+    liftVelocity = 30   # Velocity for lift arm
 
     while True:
         bump()                          # Wait for bump switch to be pressed
@@ -156,13 +156,32 @@ def main():
         wait(0.3, SECONDS)            # Wait so robot is not affected by hand
 
         # Drive forward (distance in inches)
-        driveStraight(72, normalVelocity, slowVelocity)
+        driveStraight(73, normalVelocity, slowVelocity)
         wait(0.5, SECONDS)
         liftArm(liftVelocity, 50)  # Rotate lift arm up 45 degrees
         wait(0.5, SECONDS)
-        driveStraight(15, normalVelocity, slowVelocity, reverse=True)  # Drive backward
+        driveStraight(12, normalVelocity, slowVelocity, reverse=True)  # Drive backward
         wait(0.5, SECONDS)
-        pointTurn(encoderAngle, turnVelocity, -1)  # Point turn right
+        pointTurn(calculateEncoderAngle(90, 1.1), turnVelocity, -1)  # Point turn right
+        wait(0.5, SECONDS)
+        driveStraight(64, normalVelocity, slowVelocity)
+        wait(0.5, SECONDS)
+        pointTurn(calculateEncoderAngle(34, 1.1), turnVelocity, 1)    # Point turn left
+        wait(0.5, SECONDS)
+        driveStraight(16, normalVelocity, slowVelocity)
+        wait(0.5, SECONDS)
         liftArm(liftVelocity, -50)  # Rotate lift arm down 45 degrees
+        wait(0.5, SECONDS)
+        liftArm(liftVelocity, 50)  # Rotate lift arm up 45 degrees
+        wait(0.5, SECONDS)
+        driveStraight(3, normalVelocity, slowVelocity, reverse=True)  # Drive backward
+        wait(0.5, SECONDS)
+        pointTurn(calculateEncoderAngle(90, 1.1), turnVelocity, -1)   # Point turn right
+        wait(0.5, SECONDS)
+        driveStraight(18, normalVelocity, slowVelocity, reverse=True)
+        wait(0.5, SECONDS)
+        pointTurn(calculateEncoderAngle(56, 1.1), turnVelocity, 1)    # Point turn left
+        wait(0.5, SECONDS)
+        driveStraight(42, normalVelocity, slowVelocity, reverse=True)
 
-main()  # Run main function 
+main()  # Run main function
