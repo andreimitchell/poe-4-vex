@@ -67,8 +67,8 @@ def driveStraight(distance, normalVelocity, slowVelocity, reverse=False):
     leftMotor.set_position(0, DEGREES)
     rightMotor.set_position(0, DEGREES)
 
-    normalVel = 8
-    slowVel = 0
+    normalVel = 1
+    slowVel = normalVel * slowVelocity / normalVelocity
     increment = 1
 
     # while loop will run until right encoder value = total count value
@@ -82,7 +82,7 @@ def driveStraight(distance, normalVelocity, slowVelocity, reverse=False):
             spinMotors(direction * normalVel, direction * normalVel)
         
         normalVel += increment
-        slowVel += increment
+        slowVel = normalVel * slowVelocity / normalVelocity
         if normalVel > normalVelocity:
             normalVel = normalVelocity
         if slowVel > slowVelocity:
@@ -169,13 +169,9 @@ def main():
         pointTurn(calculateEncoderAngle(34, 1.1), turnVelocity, 1)    # Point turn left
         wait(0.5, SECONDS)
         driveStraight(16, normalVelocity, slowVelocity)
-        wait(0.5, SECONDS)
         liftArm(liftVelocity, -50)  # Rotate lift arm down 45 degrees
         wait(0.5, SECONDS)
         liftArm(liftVelocity, 50)  # Rotate lift arm up 45 degrees
-        wait(0.5, SECONDS)
-        driveStraight(3, normalVelocity, slowVelocity, reverse=True)  # Drive backward
-        wait(0.5, SECONDS)
         pointTurn(calculateEncoderAngle(90, 1.1), turnVelocity, -1)   # Point turn right
         wait(0.5, SECONDS)
         driveStraight(18, normalVelocity, slowVelocity, reverse=True)
